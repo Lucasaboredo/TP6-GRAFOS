@@ -70,16 +70,55 @@ relaciones = [
 for origen, destino, distancia in relaciones:
     grafo.insert_arista(origen, destino, distancia)
 
-# Ahora encontramos el arbol de expansion minima para los 2 tipos de maravillas
+# # Ahora encontramos el arbol de expansion minima para los 2 tipos de maravillas
+# print("Árbol de expansión mínima para maravillas arquitectónicas:")
+# arbol_arquitectonico = grafo.kruskal("Machu Picchu")  
+# print(arbol_arquitectonico)
+
+# print("\nÁrbol de expansión mínima para maravillas naturales:")
+# arbol_natural = grafo.kruskal("Gran Cañón")  
+# print(arbol_natural)
+
+# subgrafos para cada tipo de maravilla
+grafo_arquitectonico = Graph(dirigido=False)
+grafo_natural = Graph(dirigido=False)
+
+# funcion para obtener el tipo en las maravillas
+def obtener_tipo(nombre, maravillas):
+    for m in maravillas:
+        if m["nombre"] == nombre:
+            return m["tipo"]
+    return None 
+
+# insertamos las maravillas(vertices)
+for maravilla in maravillas:
+    nombre = maravilla["nombre"]
+    tipo = maravilla["tipo"]
+    if tipo == "arquitectonica":
+        grafo_arquitectonico.insert_vertice(nombre)
+    elif tipo == "natural":
+        grafo_natural.insert_vertice(nombre)
+
+# insertamos las aristas(caminos)
+for origen, destino, distancia in relaciones:
+    tipo_origen = obtener_tipo(origen, maravillas)
+    tipo_destino = obtener_tipo(destino, maravillas)
+    if tipo_origen == "arquitectonica" and tipo_destino == "arquitectonica":
+        grafo_arquitectonico.insert_arista(origen, destino, distancia)
+    elif tipo_origen == "natural" and tipo_destino == "natural":
+        grafo_natural.insert_arista(origen, destino, distancia)
+
+# kruskal en cada arbol
 print("Árbol de expansión mínima para maravillas arquitectónicas:")
-arbol_arquitectonico = grafo.kruskal("Machu Picchu")  
+arbol_arquitectonico = grafo_arquitectonico.kruskal("Machu Picchu")
 print(arbol_arquitectonico)
 
 print("\nÁrbol de expansión mínima para maravillas naturales:")
-arbol_natural = grafo.kruskal("Gran Cañón")  
+arbol_natural = grafo_natural.kruskal("Gran Cañón")
 print(arbol_natural)
 
-# Ahora vamos a recopilar los paises que tienen los 2 tipos de maravillas simultaneamente
+
+# paises con los 2 tipos de maravillas simultaneamente
 paises_con_tipos = {}
 for maravilla in maravillas:
     for pais in maravilla["pais"]:
@@ -91,7 +130,7 @@ for maravilla in maravillas:
 paises_ambos_tipos = [pais for pais, tipos in paises_con_tipos.items() if len(tipos) > 1]
 print("\nPaíses con maravillas arquitectónicas y naturales:", paises_ambos_tipos)
 
-# Contamos la cantidad de maravillas por pais y tipo
+# cantidad de maravillas por tipo y pais
 maravillas_por_pais_y_tipo = {}
 for maravilla in maravillas:
     for pais in maravilla["pais"]:
@@ -99,7 +138,7 @@ for maravilla in maravillas:
             maravillas_por_pais_y_tipo[pais] = {"arquitectonica": 0, "natural": 0}
         maravillas_por_pais_y_tipo[pais][maravilla["tipo"]] += 1
 
-# Imprimimos el pais con mas de una maravilla de cada tipo
+# se imprime el pais con mas de una maravilla de cada tipo
 paises_con_multiples_maravillas = {
     pais: tipos for pais, tipos in maravillas_por_pais_y_tipo.items() if any(cant > 1 for cant in tipos.values())
 }
